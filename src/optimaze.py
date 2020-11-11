@@ -53,7 +53,7 @@ def build_smpp_model(instance, timeout, verbose=0):
 
 def main():
     # Choose: {0, 1, 2, 3, 4}
-    instance_id = 0
+    instance_id = 1
     # Max waiting time
     timeout = 10000*60
     # Verbose level
@@ -66,7 +66,6 @@ def main():
     model = build_smpp_model(instance, timeout, verbose)
     model.optimize()
 
-    import pdb; pdb.set_trace()
     pd.DataFrame(
         {
             "N": instance[0],

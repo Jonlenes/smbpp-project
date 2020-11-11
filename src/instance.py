@@ -1,6 +1,7 @@
 import os
 import math
 import json
+import random
 import numpy as np
 from glob import glob
 from util import read_json, save_json
@@ -12,17 +13,17 @@ def generate_instance(n, m):
         # Orçamento do cliente
         b = np.random.randint(1000, 20000)
         # Produtos que farão parte do pacote do cliente
-        P = np.random.randint(0, n, (np.random.randint(1, n)))
-        clients.append({'b': b, 'S': P.tolist()})
+        P = random.sample(range(n), np.random.randint(1, n))
+        clients.append({'b': b, 'S': P})
     return [n, m, clients]
 
 def generate_and_save_all(save_folder='instances'):
     os.makedirs(save_folder, exist_ok=True)
 
     # Quantidade de produtos
-    N = [10, 100, 200, 500, 1000]
+    N = [10, 10, 100, 200, 500, 1000]
     # Quantidade de clientes
-    M = [100, 1000, 2000, 10000, 20000]
+    M = [10, 100, 1000, 2000, 10000, 20000]
 
     for index, (n, m) in enumerate(zip(N, M)):
         ins = generate_instance(n, m)
