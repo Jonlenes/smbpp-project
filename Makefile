@@ -1,9 +1,8 @@
 install:
-	pip install -r src/requirements.txt
+	python -m pip install -r src/requirements.txt
 
 generate_instance:
-	python src/instance.py
+	python -m src.problem.instance_generator
 
-# run:
-#	python src/optimaze.py
-
+run:
+	python -m src.runner
