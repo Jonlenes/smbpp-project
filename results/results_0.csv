@@ -1,0 +1,3 @@
+optimazer_name,N,M,time,LB,UB
+GreedyHeuristicOptimiser,10,10,0.01,84322.5,105422
+MINLPOptimiser,10,10,0.02,84322.5,84322.5
