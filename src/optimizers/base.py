@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from time import time
 from src.problem import Result
 
-class BaseOptimiser(ABC):
-    """Abstract class for Optimisers"""
+class BaseOptimizer(ABC):
+    """Abstract class for Optimizers"""
 
     def __init__(self):
         pass

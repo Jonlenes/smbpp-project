@@ -1,9 +1,9 @@
 from gurobipy import GRB
-from .base import BaseOptimiser
+from .base import BaseOptimizer
 from src.util import get_gurobi_model
 from src.problem import SMPP, Result
 
-class GreedyHeuristicOptimiser(BaseOptimiser):
+class GreedyHeuristicOptimizer(BaseOptimizer):
     def _solve(self, smpp, timeout=None, verbose=0):
         """
         Performs a greedy heuristic that is based on adding the solution to the client 
@@ -20,7 +20,7 @@ class GreedyHeuristicOptimiser(BaseOptimiser):
             # purchase for the current client
             if j == 0 or SMPP.cost_by_client(smpp.get_current_prices(), client) >= client['b']:
                 # Get new prrices
-                current_cost, prices = optimaze(smpp)
+                current_cost, prices = optimize(smpp)
                 # Check if the solution improve
                 if current_cost > best_cost:
                     best_cost = current_cost
@@ -38,7 +38,7 @@ class GreedyHeuristicOptimiser(BaseOptimiser):
         return result
 
 
-def optimaze(smpp: SMPP, verbose: int=0):
+def optimize(smpp: SMPP, verbose: int=0):
     """
     Given the clients that must be satisfied, it computes the best prices.
     """

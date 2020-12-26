@@ -1,9 +1,9 @@
 from gurobipy import GRB
-from .base import BaseOptimiser
+from .base import BaseOptimizer
 from src.util import get_gurobi_model
 from src.problem import SMPP, Result
 
-class MINLPOptimiser(BaseOptimiser):
+class MINLPOptimizer(BaseOptimizer):
     def _solve(self, smpp, timeout, verbose):
         """
         Find which clients will be satisfied and the best prices using the non-linear model.
