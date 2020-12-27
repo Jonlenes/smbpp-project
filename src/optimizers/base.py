@@ -12,7 +12,7 @@ class BaseOptimizer(ABC):
         """Abstract method to optimize.
         """
         start_time = time()
-        result = self._solve(smpp, timeout=None, verbose=0)
+        result = self._solve(smpp, timeout=None, verbose=verbose)
         result['time'] = time() - start_time
         result['is_valid'] = smpp.validate_current_solution()
         return result
