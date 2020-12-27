@@ -8,22 +8,22 @@ from src.optimizers import MINLPOptimizer, GreedyHeuristicOptimizer
 
 def main():
     # Max waiting time
-    timeout = 10000*60
+    timeout=10000*60
     # Verbose level
-    verbose = 1
+    verbose=0
     
     df_results = pd.DataFrame(columns=["optimizer_name", "N", "M", "time", "LB", "UB"])
+    instances = ins.list_avaliable_instances("instances/small*.json")
+    print('Total of instances:', len(instances))
 
-    for name in ins.list_avaliable_instances():
-        print(f'Running instance: {name}')
+    for name in tqdm(instances):
+        if verbose: print(f'Running instance: {name}')
         # Load instance
         instance = ins.load(f'instances/{name}')
         for optimizer in [GreedyHeuristicOptimizer(), MINLPOptimizer()]:
             smpp = SMPP(instance)
             result = optimizer.solve(smpp, timeout, verbose)
-            
-            if verbose:
-                print(result, '\n')
+            if verbose: print(result, '\n')
 
             df_results = df_results.append(
                 {
