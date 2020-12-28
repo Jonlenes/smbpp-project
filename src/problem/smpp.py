@@ -4,6 +4,11 @@ from gurobipy import quicksum
 class SMPP:
     def __init__(self, instance):
         self.n_prodcuct, self.n_clients, self.clients = instance
+        self._x = None
+        self._p = None
+        self.reset_current_solution()
+
+    def reset_current_solution(self):
         self._x = [False] * self.n_clients
         self._p = [0] * self.n_prodcuct
 
