@@ -1,10 +1,15 @@
 import os
+import re
 import math
 import json
 import random
 import numpy as np
 from glob import glob
+from itertools import product
 from src.util import read_json, save_json
+
+def decision(probability):
+    return random.random() < probability
 
 def generate_instance(n, m):
     clients = []
@@ -17,18 +22,54 @@ def generate_instance(n, m):
         clients.append({'b': b, 'S': P})
     return [n, m, clients]
 
+def generate_instance_paper(n, m, d):
+    products_used = np.zeros(n, dtype=np.bool)
+    clients, empty_bundles = [], []
+
+    # For each client
+    for j in range(m):
+        # Clients budget
+        b = np.random.randint(1, 1000)
+        # Creating client bundle
+        S = np.where([decision(d) for i in range(n)])[0].tolist()
+        # Set product as used
+        products_used[S] = True
+        # Add client to the list
+        clients.append({'b': b, 'S': S})
+        if len(S) == 0:
+            empty_bundles.append(j)
+    
+    # For each client with empty bundle, or each product not appearing in any
+    # bundle, sample 1 product and client respectively and set Sji = 1
+    unused_products = list(np.where(~products_used)[0])
+    for j in empty_bundles:
+        i = unused_products.pop() if len(unused_products) > 0 else np.random.randint(0, n)
+        clients[j]['S'].append(int(i))
+    for i in unused_products:
+        j = np.random.randint(0, m)
+        clients[j]['S'].append(int(i))
+    return [n, m, clients]
+
 def generate_and_save_all(save_folder='instances'):
     os.makedirs(save_folder, exist_ok=True)
 
-    # Quantidade de produtos
-    N = [10, 10, 10, 10, 100, 200, 500, 1000]
-    # Quantidade de clientes
-    M = [10, 30, 50, 100, 1000, 2000, 10000, 20000]
+    # Small set
+    N = {10, 25, 50}           # Number of products
+    M = {10, 25, 50, 100, 150} # Number of clients
+    d = {0.2, 0.5, 0.8}        # Density of matrix S
+    combinations = list(product(['small'], N, M, d))
 
-    for index, (n, m) in enumerate(zip(N, M)):
-        ins = generate_instance(n, m)
-        json_ins = instance2json(ins)
-        save_json(os.path.join(save_folder, f'instance-{index}.json'), json_ins)
+    # Big set
+    N = {100, 500}      # Number of products
+    M = {150, 200, 300} # Number of clients
+    d = {0.5}           # Density of matrix S
+    combinations = combinations + list(product(['big'], N, M, d))
+
+    for size, n, m, d in combinations:
+        for idx in range(10):  # Generatin 10 instaces for each config
+            ins = generate_instance_paper(n, m, d)
+            json_ins = instance2json(ins)
+            save_json(os.path.join(save_folder, f'{size}-N{n}M{m}d{d}-{idx}.json'), json_ins)
 
 def instance2json(ins):
     names = ['n', 'm', 'clients']
@@ -41,7 +82,13 @@ def instance2json(ins):
 
 
 def list_avaliable_instances(regex="instances/*.json"):
-    return glob(regex)
+    names = [path.split(os.path.sep)[-1] for path in glob(regex)]
+    def cmp(name):
+        reward = 1000 if 'big' in name else 0
+        match = re.compile(r'N(?P<N>\d+)M(?P<M>\d+)d(?P<d>\d+\.\d+)-(?P<idx>\d+)').search(name)
+        return (reward + int(match.group('N')) + int(match.group('M')) + 
+            float(match.group('d'))*10 + int(match.group('idx')))
+    return sorted(names, key=cmp)
 
 def load(filename):
     json_ins = read_json(filename)
