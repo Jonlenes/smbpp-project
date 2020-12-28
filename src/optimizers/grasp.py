@@ -5,11 +5,11 @@ from src.util import get_gurobi_model
 from src.problem import SMPP, Result
 
 class GRASPOptimizer(BaseOptimizer):
-    def _solve(self, smpp, timeout=None, verbose=0):
+    def _solve(self, smpp, timeout, seed, verbose, **kwargs):
         """
         Performs ...
         """
-        best_cost = grasp(smpp, iterations, alpha, seed, verbose)
+        best_cost = grasp(smpp, seed=seed, verbose=verbose, **kwargs)
         result = Result()
         result['name'] = self.__class__.__name__
         result['LB'] = best_cost
@@ -25,7 +25,7 @@ def grasp(smpp, iterations, alpha, seed, verbose):
         if cost > best_cost:
             best_S, best_cost = S, cost
             if verbose:
-                print("\tIter.: {}, BestSol = {best_cost}")
+                print(f"\tIter.: {i}, BestSol = {best_cost}")
     return best_cost
 
 def evaluate_candidates(smpp, CL, S, current_cost):
@@ -45,7 +45,7 @@ def evaluate_candidates(smpp, CL, S, current_cost):
         smpp.set_client_decision(e, True)
         cost, _ = optimize(smpp)
         costs[e] = cost - current_cost
-        smpp.set_client_decision(j, False)
+        smpp.set_client_decision(e, False)
 
     return costs   
 
@@ -63,12 +63,12 @@ def constructive_heuristic(smpp, alpha):
 
     while True:
         # Compute cost min and max
-        c_min = min(costs)
-        c_max = max(costs)
+        c_min = min(costs.values())
+        c_max = max(costs.values())
 
         # Build RCL
         for e in CL:
-            if cost[e] >= c_min + alpha * (c_max - c_min):
+            if costs[e] >= c_min + alpha * (c_max - c_min):
                 RCL.append(e)
 
         # Will stop when we have no element in the RCL
@@ -76,19 +76,20 @@ def constructive_heuristic(smpp, alpha):
         
         # Select an element s from the RCL at random
         s = random.choice(RCL)
+        RCL = []
         # Add s to the solution
-        S += s
-        current_cost += cost[s]
+        S += [s]
+        current_cost += costs[s]
         # Update candidate set
         CL.remove(s)
+        if not CL: break
 
         # Reevaluate the cost
         costs = evaluate_candidates(smpp, CL, S, current_cost)
     return S, current_cost
 
 def local_search(smpp, S, cost):
-    pass
-
+    return S, cost
 
 def optimize(smpp: SMPP, verbose: int=0):
     """
