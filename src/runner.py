@@ -5,36 +5,35 @@ from src.problem import instance_generator as ins
 from src.problem.smpp import SMPP
 from src.optimizers import (MINLPOptimizer,
                     GreedyHeuristicOptimizer,
-                    GRASPOptimizer)
+                    GRASPOptimizer,
+                    MINLPWarmStartOptimizer)
 
 
 def main():
     # Max waiting time
-    timeout=10000*60
+    timeout=2*60
     # Verbose level
     verbose=1
     seed=42
     
     df_results = pd.DataFrame(columns=["optimizer_name", "N", "M", "d", "idx", 
                                     "time", "LB", "UB", "is_valid"])
-    instances = ins.list_avaliable_instances("instances/small*.json")[:5]
+    # instances = ins.list_avaliable_instances("instances/big*.json")[:1]
+    # instances = ins.list_avaliable_instances("instances/small*50*10*0.2*0.json")
+    # instances = ins.list_avaliable_instances("instances/small*.json")[:5]
+    instances = ins.list_avaliable_instances("instances/small*50*25*0.8*3.json")
     print('Total of instances:', len(instances))
-
-    opts = [
-        {
+    """
+            {
             'opt': MINLPOptimizer,
             'kwargs': {}
         },
+    """
+    opts = [
+
         {
-            'opt': GreedyHeuristicOptimizer,
+            'opt': MINLPWarmStartOptimizer,
             'kwargs': {}
-        },
-        {
-            'opt': GRASPOptimizer,
-            'kwargs': {
-                'iterations': 100,
-                'alpha': 0.9,
-            }
         }
     ]
 

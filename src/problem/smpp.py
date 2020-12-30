@@ -9,8 +9,8 @@ class SMPP:
         self.reset_current_solution()
 
     def reset_current_solution(self):
-        self._x = [False] * self.n_clients
-        self._p = [0] * self.n_prodcuct
+        self._x = [0] * self.n_clients
+        self._p = [0.0] * self.n_prodcuct
 
     def set_prices(self, p):
         self._p = p
@@ -20,6 +20,9 @@ class SMPP:
 
     def set_client_decision(self, client_idx, buy):
        self._x[client_idx] = int(buy)
+
+    def set_clients_decision(self, x):
+        self._x = x
 
     def get_clients_decision(self):
         return self._x
@@ -34,6 +37,7 @@ class SMPP:
         return SMPP.objective_function(self._p, self._x, self.clients)
 
     def validate_current_solution(self):
+        print(self._p, self._x)
         return SMPP.validate(self._p, self._x, self.clients)
 
     def get_maximum_revenue(self):
