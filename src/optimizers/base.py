@@ -8,17 +8,17 @@ class BaseOptimizer(ABC):
     def __init__(self):
         pass
 
-    def solve(self, smpp, timeout, seed, verbose, **kwargs) -> Result:
+    def solve(self, smbpp, timeout, seed, verbose, **kwargs) -> Result:
         """Abstract method to optimize.
         """
         start_time = time()
-        result = self._solve(smpp, timeout, seed, verbose, **kwargs)
+        result = self._solve(smbpp, timeout, seed, verbose, **kwargs)
         result['time'] = time() - start_time
-        result['is_valid'] = smpp.validate_current_solution()
+        result['is_valid'] = smbpp.validate_current_solution()
         return result
     
     @abstractmethod
-    def _solve(self, smpp, timeout, seed, verbose, **kwargs):
+    def _solve(self, smbpp, timeout, seed, verbose, **kwargs):
         """Abstract method to optimize.
         """
         raise NotImplementedError

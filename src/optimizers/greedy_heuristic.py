@@ -1,61 +1,62 @@
 from gurobipy import GRB
 from .base import BaseOptimizer
 from src.util import get_gurobi_model
-from src.problem import SMPP, Result
+from src.problem import SMBPP, Result
 
 class GreedyHeuristicOptimizer(BaseOptimizer):
-    def _solve(self, smpp, timeout, seed, verbose, **kwargs):
+    def _solve(self, smbpp, timeout, seed, verbose, **kwargs):
         """
         Performs a greedy heuristic that is based on adding the solution to the client 
         with the largest possible budget.
         """
         best_cost = 0.0
         # Sort client by their budgets
-        smpp.sort_clients_by_budget()
+        smbpp.sort_clients_by_budget()
         # For each client
-        for j, client in enumerate(smpp.clients):
+        for j, client in enumerate(smbpp.clients):
             # Add client to the solution
-            smpp.set_client_decision(j, True)
+            smbpp.set_client_decision(j, True)
             # Check if it is the first client or if the current prioce does not satisfy the 
             # purchase for the current client
-            if j == 0 or SMPP.cost_by_client(smpp.get_current_prices(), client) >= client['b']:
+            if j == 0 or SMBPP.cost_by_client(smbpp.get_current_prices(), client) >= client['b']:
                 # Get new prrices
-                current_cost, prices = optimize(smpp)
+                current_cost, prices = optimize(smbpp)
                 # Check if the solution improve
                 if current_cost > best_cost:
                     best_cost = current_cost
-                    smpp.set_prices(prices)
+                    smbpp.set_prices(prices)
                 else:
-                    smpp.set_client_decision(j, False)
+                    smbpp.set_client_decision(j, False)
             else:
                 # This is great, keep the prices and compute the new revenue
-                best_cost = smpp.current_cost()
+                best_cost = smbpp.current_cost()
 
+        smbpp.set_prices()
         result = Result()
         result['name'] = self.__class__.__name__
         result['LB'] = best_cost
-        result['UB'] = smpp.get_maximum_revenue()
+        result['UB'] = smbpp.get_maximum_revenue()
         return result
 
 
-def optimize(smpp: SMPP, verbose: int=0):
+def optimize(smbpp: SMBPP, verbose: int=0):
     """
     Given the clients that must be satisfied, it computes the best prices.
     """
     model = get_gurobi_model(verbose=verbose)
 
     # Variables: Prices
-    prices = model.addVars(smpp.n_prodcuct, vtype=GRB.CONTINUOUS, name="prices")
+    prices = model.addVars(smbpp.n_prodcuct, vtype=GRB.CONTINUOUS, name="prices")
 
     # Set objective function
     model.setObjective(
-        SMPP.objective_function(prices, smpp.get_clients_decision(), smpp.clients),
+        SMBPP.objective_function(prices, smbpp.get_clients_decision(), smbpp.clients),
         GRB.MAXIMIZE
     )
 
     # Add constraints
     model.addConstrs(
-        (c for c in SMPP.constraints_gen(prices, smpp.get_clients_decision(), smpp.clients, True))
+        (c for c in SMBPP.constraints_gen(prices, smbpp.get_clients_decision(), smbpp.clients, True))
     )
 
     # Solve the model

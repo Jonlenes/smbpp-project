@@ -2,7 +2,7 @@ import pandas as pd
 from datetime import datetime as dt
 from tqdm import tqdm
 from src.problem import instance_generator as ins
-from src.problem.smpp import SMPP
+from src.problem.smbpp import SMBPP
 from src.optimizers import (MINLPOptimizer,
                     GreedyHeuristicOptimizer,
                     GRASPOptimizer,
@@ -44,10 +44,10 @@ def main():
         for opt in opts:
             # Create optimizer and model instance
             optimizer = opt['opt']()
-            smpp = SMPP(instance)
+            smbpp = SMBPP(instance)
 
             # Run optimization
-            result = optimizer.solve(smpp, timeout, seed, verbose, **opt['kwargs'])
+            result = optimizer.solve(smbpp, timeout, seed, verbose, **opt['kwargs'])
             if verbose: print(result, '\n')
 
             vins = ins.get_info_from_name(name)
