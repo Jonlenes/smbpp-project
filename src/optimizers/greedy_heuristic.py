@@ -4,7 +4,7 @@ from src.util import get_gurobi_model
 from src.problem import SMPP, Result
 
 class GreedyHeuristicOptimizer(BaseOptimizer):
-    def _solve(self, smpp, timeout=None, verbose=0):
+    def _solve(self, smpp, timeout, seed, verbose, **kwargs):
         """
         Performs a greedy heuristic that is based on adding the solution to the client 
         with the largest possible budget.

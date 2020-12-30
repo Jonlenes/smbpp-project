@@ -80,14 +80,20 @@ def instance2json(ins):
         dic_ins[name] = value
     return json.dumps(dic_ins)
 
+def get_info_from_name(name):
+    match = re.compile(r'N(?P<N>\d+)M(?P<M>\d+)d(?P<d>\d+\.\d+)-(?P<idx>\d+)').search(name)
+    return {'N': int(match.group('N')),
+        'M': int(match.group('M')),
+        'd': float(match.group('d')),
+        'idx': int(match.group('idx'))
+    }
 
 def list_avaliable_instances(regex="instances/*.json"):
     names = [path.split(os.path.sep)[-1] for path in glob(regex)]
     def cmp(name):
         reward = 1000 if 'big' in name else 0
-        match = re.compile(r'N(?P<N>\d+)M(?P<M>\d+)d(?P<d>\d+\.\d+)-(?P<idx>\d+)').search(name)
-        return (reward + int(match.group('N')) + int(match.group('M')) + 
-            float(match.group('d'))*10 + int(match.group('idx')))
+        vins = get_info_from_name(name)
+        return (reward + vins['N'] + vins['M'] + vins['d']*10 + vins['idx'])
     return sorted(names, key=cmp)
 
 def load(filename):
