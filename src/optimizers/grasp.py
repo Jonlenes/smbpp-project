@@ -43,7 +43,7 @@ def evaluate_candidates(smpp, CL, S, current_cost):
     costs = {}
     for e in CL:
         smpp.set_client_decision(e, True)
-        #TODO: verificar se a solução já não atende o cliente e.
+        # TODO: verificar se a solução já não atende o cliente e.
         # Tipo o que é feito no greedy: SMPP.cost_by_client(smpp.get_current_prices(), client) >= client['b']...
         cost, _ = optimize(smpp)
         costs[e] = cost - current_cost
@@ -65,7 +65,7 @@ def constructive_heuristic(smpp, alpha):
         costs = evaluate_candidates(smpp, CL, S, current_cost)
 
         # Compute cost min and max
-        c_min = min(costs.values())g
+        c_min = min(costs.values())
         c_max = max(costs.values())
 
         # Build RCL
