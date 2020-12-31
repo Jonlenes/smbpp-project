@@ -1,12 +1,12 @@
 import json
 import gurobipy as gp
 
-def get_gurobi_model(timeout=None, verbose=0, seed=42, name='smpp'):
+def get_gurobi_model(timeout=None, verbose=0, seed=42, name='smbpp'):
     # Create a new model
     model = gp.Model(name)
 
     # Set Params
-    model.setParam(gp.GRB.Param.OutputFlag, verbose)
+    model.setParam(gp.GRB.Param.OutputFlag, int(verbose==2))
     model.setParam(gp.GRB.Param.Seed, seed)
 
     if timeout:

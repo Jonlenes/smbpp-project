@@ -2,25 +2,33 @@ import pandas as pd
 from datetime import datetime as dt
 from tqdm import tqdm
 from src.problem import instance_generator as ins
-from src.problem.smpp import SMPP
+from src.problem.smbpp import SMBPP
 from src.optimizers import (MINLPOptimizer,
                     GreedyHeuristicOptimizer,
-                    GRASPOptimizer)
+                    GRASPOptimizer,
+                    MINLPWarmStartOptimizer)
 
 
 def main():
     # Max waiting time
-    timeout=10000*60
-    # Verbose level
-    verbose=1
-    seed=42
+    TIMEOUT = 2*60
+    # Verbose level (0 - Silence, 1 - Only infos, 2 - Debug)
+    VERBOSE = 2
+    # Random seed
+    SEED = 42
     
     df_results = pd.DataFrame(columns=["optimizer_name", "N", "M", "d", "idx", 
                                     "time", "LB", "UB", "is_valid"])
     instances = ins.list_avaliable_instances("instances/small*.json")[:5]
     print('Total of instances:', len(instances))
+    """
 
+    """
     opts = [
+        {
+            'opt': MINLPWarmStartOptimizer,
+            'kwargs': {}
+        },
         {
             'opt': MINLPOptimizer,
             'kwargs': {}
@@ -39,17 +47,17 @@ def main():
     ]
 
     for name in tqdm(instances):
-        if verbose: print(f'Running instance: {name}')
+        if VERBOSE: print(f'Running instance: {name}')
         # Load instance
         instance = ins.load(f'instances/{name}')
         for opt in opts:
             # Create optimizer and model instance
             optimizer = opt['opt']()
-            smpp = SMPP(instance)
+            smbpp = SMBPP(instance)
 
             # Run optimization
-            result = optimizer.solve(smpp, timeout, seed, verbose, **opt['kwargs'])
-            if verbose: print(result, '\n')
+            result = optimizer.solve(smbpp, TIMEOUT, SEED, VERBOSE, **opt['kwargs'])
+            if VERBOSE == 2: print(result, '\n')
 
             vins = ins.get_info_from_name(name)
             df_results = df_results.append(

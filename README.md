@@ -1,4 +1,4 @@
-# MO824 - SMPP Project
+# MO824 - SMBPP Project
 
 - Install python requirements: `make install`
     - You must have Gurobi installed.
