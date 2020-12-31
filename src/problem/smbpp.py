@@ -3,14 +3,14 @@ from gurobipy import quicksum
 
 class SMBPP:
     def __init__(self, instance):
-        self.n_prodcuct, self.n_clients, self.clients = instance
+        self.n_product, self.n_clients, self.clients = instance
         self._x = None
         self._p = None
         self.reset_current_solution()
 
     def reset_current_solution(self):
         self._x = [0] * self.n_clients
-        self._p = [0.0] * self.n_prodcuct
+        self._p = [0.0] * self.n_product
 
     def set_prices(self, p):
         self._p = p
@@ -37,7 +37,6 @@ class SMBPP:
         return SMBPP.objective_function(self._p, self._x, self.clients)
 
     def validate_current_solution(self):
-        print(self._p, self._x)
         return SMBPP.validate(self._p, self._x, self.clients)
 
     def get_maximum_revenue(self):
