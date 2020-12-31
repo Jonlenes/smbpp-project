@@ -9,6 +9,7 @@ class GreedyHeuristicOptimizer(BaseOptimizer):
         Performs a greedy heuristic that is based on adding the solution to the client 
         with the largest possible budget.
         """
+        if verbose: print('GreedyHeuristicOptimizer')
         best_cost = 0.0
         # Sort client by their budgets
         smbpp.sort_clients_by_budget()
@@ -31,7 +32,6 @@ class GreedyHeuristicOptimizer(BaseOptimizer):
                 # This is great, keep the prices and compute the new revenue
                 best_cost = smbpp.current_cost()
 
-        smbpp.set_prices()
         result = Result()
         result['name'] = self.__class__.__name__
         result['LB'] = best_cost
@@ -46,7 +46,7 @@ def optimize(smbpp: SMBPP, verbose: int=0):
     model = get_gurobi_model(verbose=verbose)
 
     # Variables: Prices
-    prices = model.addVars(smbpp.n_prodcuct, vtype=GRB.CONTINUOUS, name="prices")
+    prices = model.addVars(smbpp.n_product, vtype=GRB.CONTINUOUS, name="prices")
 
     # Set objective function
     model.setObjective(

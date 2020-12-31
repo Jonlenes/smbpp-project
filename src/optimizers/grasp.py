@@ -97,7 +97,7 @@ def optimize(smbpp: SMBPP, verbose: int):
     model = get_gurobi_model(verbose=verbose)
 
     # Variables: Prices
-    prices = model.addVars(smbpp.n_prodcuct, vtype=GRB.CONTINUOUS, name="prices")
+    prices = model.addVars(smbpp.n_product, vtype=GRB.CONTINUOUS, name="prices")
 
     # Set objective function
     model.setObjective(
