@@ -11,34 +11,43 @@ from src.optimizers import (MINLPOptimizer,
 
 def main():
     # Max waiting time
-    timeout=2*60
-    # Verbose level
-    verbose=1
-    seed=42
+    TIMEOUT = 2*60
+    # Verbose level (0 - Silence, 1 - Only infos, 2 - Debug)
+    VERBOSE = 2
+    # Random seed
+    SEED = 42
     
     df_results = pd.DataFrame(columns=["optimizer_name", "N", "M", "d", "idx", 
                                     "time", "LB", "UB", "is_valid"])
-    # instances = ins.list_avaliable_instances("instances/big*.json")[:1]
-    # instances = ins.list_avaliable_instances("instances/small*50*10*0.2*0.json")
-    # instances = ins.list_avaliable_instances("instances/small*.json")[:5]
-    instances = ins.list_avaliable_instances("instances/small*50*25*0.8*3.json")
+    instances = ins.list_avaliable_instances("instances/small*.json")[:5]
     print('Total of instances:', len(instances))
     """
-            {
-            'opt': MINLPOptimizer,
-            'kwargs': {}
-        },
+
     """
     opts = [
-
         {
             'opt': MINLPWarmStartOptimizer,
             'kwargs': {}
+        },
+        {
+            'opt': MINLPOptimizer,
+            'kwargs': {}
+        },
+        {
+            'opt': GreedyHeuristicOptimizer,
+            'kwargs': {}
+        },
+        {
+            'opt': GRASPOptimizer,
+            'kwargs': {
+                'iterations': 100,
+                'alpha': 0.9,
+            }
         }
     ]
 
     for name in tqdm(instances):
-        if verbose: print(f'Running instance: {name}')
+        if VERBOSE: print(f'Running instance: {name}')
         # Load instance
         instance = ins.load(f'instances/{name}')
         for opt in opts:
@@ -47,8 +56,8 @@ def main():
             smbpp = SMBPP(instance)
 
             # Run optimization
-            result = optimizer.solve(smbpp, timeout, seed, verbose, **opt['kwargs'])
-            if verbose: print(result, '\n')
+            result = optimizer.solve(smbpp, TIMEOUT, SEED, VERBOSE, **opt['kwargs'])
+            if VERBOSE == 2: print(result, '\n')
 
             vins = ins.get_info_from_name(name)
             df_results = df_results.append(
