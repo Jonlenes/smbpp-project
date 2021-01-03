@@ -28,7 +28,7 @@ def grasp(smbpp, timeout, iterations, alpha, seed, verbose):
         S, cost = local_search(smbpp, S, cost, verbose)
         if cost > best_cost:
             best_S, best_cost = S, cost
-        if verbose:
+        if verbose == 2 or verbose == 1 and i % 10 == 0:
             print(f"\tIter.: {i}, BestSol = {best_cost}")
         if time()-start_time > timeout:
             break

@@ -38,7 +38,7 @@ def main():
         {
             'opt': GRASPOptimizer,
             'kwargs': {
-                'iterations': 100,
+                'iterations': 50,
                 'alpha': 0.5,
             }
         },
@@ -67,7 +67,7 @@ def main():
 
             # Run optimization
             result = optimizer.solve(smbpp, TIMEOUT, SEED, VERBOSE, **opt['kwargs'])
-            if VERBOSE == 2: print(result, '\n')
+            if VERBOSE : print("\tResultados:\n",result, '\n')
 
             vins = ins.get_info_from_name(name)
             df_results = df_results.append(
@@ -84,8 +84,6 @@ def main():
                 },
                 ignore_index=True,
             )
-        file_id = dt.now().isoformat().replace(':', '-').replace('.', '-')
-        df_results.to_csv(f"results/{file_id}.csv", index=False)
     file_id = dt.now().isoformat().replace(':', '-').replace('.', '-')
     df_results.to_csv(f"results/{file_id}.csv", index=False)
 

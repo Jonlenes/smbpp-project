@@ -40,9 +40,6 @@ class MILPOptimizer(BaseOptimizer):
             GRB.MAXIMIZE,
         )
 
-        for j, client in enumerate(smbpp.clients):
-            print(j, client['b'])
-
         # Add constraints
         for j, client in enumerate(smbpp.clients):
             model.addConstr(revenues[j] <= client['b'] * clients_decision[j])
