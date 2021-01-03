@@ -3,9 +3,11 @@ from datetime import datetime as dt
 from tqdm import tqdm
 from src.problem import instance_generator as ins
 from src.problem.smbpp import SMBPP
-from src.optimizers import (MINLPOptimizer,
-                    GreedyHeuristicOptimizer,
+from src.optimizers import (MILPOptimizer,
+                    MILPWarmStartOptimizer,
                     GRASPOptimizer,
+                    MINLPOptimizer,
+                    GreedyHeuristicOptimizer,
                     MINLPWarmStartOptimizer)
 
 
@@ -26,6 +28,21 @@ def main():
     """
     opts = [
         {
+            'opt': MILPOptimizer,
+            'kwargs': {}
+        },
+        {
+            'opt': MILPWarmStartOptimizer,
+            'kwargs': {}
+        },
+        {
+            'opt': GRASPOptimizer,
+            'kwargs': {
+                'iterations': 100,
+                'alpha': 0.5,
+            }
+        },
+        {
             'opt': MINLPWarmStartOptimizer,
             'kwargs': {}
         },
@@ -36,13 +53,6 @@ def main():
         {
             'opt': GreedyHeuristicOptimizer,
             'kwargs': {}
-        },
-        {
-            'opt': GRASPOptimizer,
-            'kwargs': {
-                'iterations': 100,
-                'alpha': 0.9,
-            }
         }
     ]
 
@@ -74,6 +84,8 @@ def main():
                 },
                 ignore_index=True,
             )
+        file_id = dt.now().isoformat().replace(':', '-').replace('.', '-')
+        df_results.to_csv(f"results/{file_id}.csv", index=False)
     file_id = dt.now().isoformat().replace(':', '-').replace('.', '-')
     df_results.to_csv(f"results/{file_id}.csv", index=False)
 
