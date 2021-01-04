@@ -3,9 +3,11 @@ from datetime import datetime as dt
 from tqdm import tqdm
 from src.problem import instance_generator as ins
 from src.problem.smbpp import SMBPP
-from src.optimizers import (MINLPOptimizer,
-                    GreedyHeuristicOptimizer,
+from src.optimizers import (MILPOptimizer,
+                    MILPWarmStartOptimizer,
                     GRASPOptimizer,
+                    MINLPOptimizer,
+                    GreedyHeuristicOptimizer,
                     MINLPWarmStartOptimizer)
 
 
@@ -26,6 +28,21 @@ def main():
     """
     opts = [
         {
+            'opt': MILPOptimizer,
+            'kwargs': {}
+        },
+        {
+            'opt': MILPWarmStartOptimizer,
+            'kwargs': {}
+        },
+        {
+            'opt': GRASPOptimizer,
+            'kwargs': {
+                'iterations': 50,
+                'alpha': 0.5,
+            }
+        },
+        {
             'opt': MINLPWarmStartOptimizer,
             'kwargs': {}
         },
@@ -36,13 +53,6 @@ def main():
         {
             'opt': GreedyHeuristicOptimizer,
             'kwargs': {}
-        },
-        {
-            'opt': GRASPOptimizer,
-            'kwargs': {
-                'iterations': 100,
-                'alpha': 0.9,
-            }
         }
     ]
 
@@ -57,7 +67,7 @@ def main():
 
             # Run optimization
             result = optimizer.solve(smbpp, TIMEOUT, SEED, VERBOSE, **opt['kwargs'])
-            if VERBOSE == 2: print(result, '\n')
+            if VERBOSE : print("\tResultados:\n",result, '\n')
 
             vins = ins.get_info_from_name(name)
             df_results = df_results.append(

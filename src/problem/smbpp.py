@@ -4,13 +4,19 @@ from gurobipy import quicksum
 class SMBPP:
     def __init__(self, instance):
         self.n_product, self.n_clients, self.clients = instance
-        self._x = None
-        self._p = None
+        self._x = None # Clients decisions
+        self._p = None # Product prices
+        self._u = None # Upper bound on prices
         self.reset_current_solution()
 
     def reset_current_solution(self):
         self._x = [0] * self.n_clients
         self._p = [0.0] * self.n_product
+        self._u = [0.0] * self.n_product
+
+        for client in self.clients:
+            for i in client['S']:
+                self._u[i] = max(self._u[i], client['b'])
 
     def set_prices(self, p):
         self._p = p
@@ -41,6 +47,9 @@ class SMBPP:
 
     def get_maximum_revenue(self):
         return sum(client['b'] for client in self.clients)
+
+    def get_bundle_bound(self, client_idx):
+        return sum(self._u[i] for i in self.clients[client_idx]['S'])
 
     @staticmethod
     def objective_function(p, x, clients):
