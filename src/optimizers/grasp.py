@@ -24,14 +24,13 @@ def grasp(smbpp, timeout, iterations, alpha, seed, verbose):
     random.seed(seed)
     best_S, best_cost = [], 0
     for i in range(iterations):
-        S, cost = constructive_heuristic(smbpp, alpha, verbose)
-        S, cost = local_search(smbpp, S, cost, verbose)
+        S, cost = constructive_heuristic(smbpp, alpha, start_time, timeout, verbose)
+        S, cost = local_search(smbpp, S, cost, start_time, timeout, verbose)
         if cost > best_cost:
             best_S, best_cost = S, cost
         if verbose == 2 or verbose == 1 and i % 10 == 0:
             print(f"\tIter.: {i}, BestSol = {best_cost}")
-        if time()-start_time > timeout:
-            break
+        if time() - start_time > timeout: break
     return best_cost
 
 def evaluate_candidates(smbpp, CL, S, current_cost):
@@ -57,7 +56,7 @@ def evaluate_candidates(smbpp, CL, S, current_cost):
 
     return costs   
 
-def constructive_heuristic(smbpp, alpha, verbose = 0):
+def constructive_heuristic(smbpp, alpha, start_time, timeout, verbose = 0):
     # Create the candidate list
     CL = [j for j in range(smbpp.n_clients)]
     # Create empty RCL
@@ -83,8 +82,8 @@ def constructive_heuristic(smbpp, alpha, verbose = 0):
             if costs[e] >= c_min + alpha * (c_max - c_min):
                 RCL.append(e)
 
-        # Will stop when we have no element in the RCL or no improve
-        if c_min + alpha * (c_max - c_min) < 0 or not RCL: break
+        # Will stop when we reach timeout, we have no element in the RCL or no improve
+        if time() - start_time > timeout or c_min + alpha * (c_max - c_min) < 0 or not RCL: break
         
         # Select an element s from the RCL at random
         s = random.choice(RCL)
@@ -96,9 +95,11 @@ def constructive_heuristic(smbpp, alpha, verbose = 0):
         CL.remove(s)
         iter += 1
 
+        if time()-start_time > timeout: break
+
     return S, current_cost
 
-def local_search(smbpp, best_sol, cost, verbose):
+def local_search(smbpp, best_sol, cost, start_time, timeout, verbose = 0):
     # Initialize the solution
     smbpp.reset_current_solution()
     for s in best_sol:
@@ -113,18 +114,18 @@ def local_search(smbpp, best_sol, cost, verbose):
     best_cost = -1
     
     iter = 0
-    while best_cost < cost:
+    while best_cost < cost and time() - start_time <= timeout:
         best_cost = cost
         in_cand, out_cand = None, None
         if verbose == 2:
             print("\t\tLocal search iteration: ", iter, " Best cost: ", best_cost)
 
         #Explore the neighborhoods
-        cost, in_cand = add_neighborhood(smbpp, best_sol, best_cost, in_candidates)
+        cost, in_cand = add_neighborhood(smbpp, best_sol, best_cost, in_candidates, start_time, timeout)
         if best_cost >= cost:
-            cost, out_cand = remove_neighborhood(smbpp, best_sol, best_cost)
+            cost, out_cand = remove_neighborhood(smbpp, best_sol, best_cost, start_time, timeout)
         if best_cost >= cost:
-            cost, in_cand, out_cand = exchange_neighborhood(smbpp, best_sol, best_cost, in_candidates)
+            cost, in_cand, out_cand = exchange_neighborhood(smbpp, best_sol, best_cost, in_candidates, start_time, timeout)
         
         #Perform the changes in the solution
         if out_cand is not None:
@@ -137,7 +138,7 @@ def local_search(smbpp, best_sol, cost, verbose):
 
     return best_sol, best_cost
 
-def add_neighborhood(smbpp, S, cost, in_candidates):
+def add_neighborhood(smbpp, S, cost, in_candidates, start_time, timeout):
     """
     Performs a first improving search adding a new client in the solution
     """ 
@@ -147,9 +148,10 @@ def add_neighborhood(smbpp, S, cost, in_candidates):
         if new_cost > cost:
             return new_cost, cand
         smbpp.set_client_decision(cand, False)
+        if time() - start_time > timeout: break
     return cost, None
 
-def remove_neighborhood(smbpp, S, cost):
+def remove_neighborhood(smbpp, S, cost, start_time, timeout):
     """
     Performs a first improving search removing a client from the solution
     """
@@ -159,9 +161,10 @@ def remove_neighborhood(smbpp, S, cost):
         if new_cost > cost:
             return new_cost, cand
         smbpp.set_client_decision(cand, True)
+        if time() - start_time > timeout: break
     return cost, None
 
-def exchange_neighborhood(smbpp, S, cost, in_candidates):
+def exchange_neighborhood(smbpp, S, cost, in_candidates, start_time, timeout):
     """
     Performs a first improving search exchanging a client in the solutio by a client out of the solution
     """
@@ -174,6 +177,7 @@ def exchange_neighborhood(smbpp, S, cost, in_candidates):
                 return new_cost, in_cand, out_cand
             smbpp.set_client_decision(out_cand, True)
         smbpp.set_client_decision(in_cand, False)
+        if time() - start_time > timeout: break
     return cost, None, None
 
 

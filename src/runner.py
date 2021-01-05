@@ -15,7 +15,7 @@ def main():
     # Max waiting time
     TIMEOUT = 2*60
     # Verbose level (0 - Silence, 1 - Only infos, 2 - Debug)
-    VERBOSE = 2
+    VERBOSE = 1
     # Random seed
     SEED = 42
     

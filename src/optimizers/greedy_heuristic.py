@@ -2,6 +2,7 @@ from gurobipy import GRB
 from .base import BaseOptimizer
 from src.util import get_gurobi_model
 from src.problem import SMBPP, Result
+from time import time
 
 class GreedyHeuristicOptimizer(BaseOptimizer):
     def _solve(self, smbpp, timeout, seed, verbose, **kwargs):
@@ -11,6 +12,7 @@ class GreedyHeuristicOptimizer(BaseOptimizer):
         """
         if verbose: print('GreedyHeuristicOptimizer')
         best_cost = 0.0
+        start_time = time()
         # Sort client by their budgets
         smbpp.sort_clients_by_budget()
         # For each client
@@ -31,6 +33,7 @@ class GreedyHeuristicOptimizer(BaseOptimizer):
             else:
                 # This is great, keep the prices and compute the new revenue
                 best_cost = smbpp.current_cost()
+            if time()-start_time > timeout: break
 
         result = Result()
         result['name'] = self.__class__.__name__
