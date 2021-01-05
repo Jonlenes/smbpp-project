@@ -23,7 +23,7 @@ class MILPWarmStartOptimizer(BaseOptimizer):
         # Create non linear optimizers
         milp_opt = MILPOptimizer()
         milp_opt.set_warm_start(smbpp.get_clients_decision(), smbpp.get_current_prices())
-        result = milp_opt.solve(smbpp, timeout, seed, verbose, **kwargs)
+        result = milp_opt.solve(smbpp, timeout - result['time'], seed, verbose, **kwargs)
 
         result['name'] = self.__class__.__name__
         return result

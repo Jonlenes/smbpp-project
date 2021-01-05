@@ -23,7 +23,7 @@ class MINLPWarmStartOptimizer(BaseOptimizer):
         # Create non linear optimizers
         minlp_opt = MINLPOptimizer()
         minlp_opt.set_warm_start(smbpp.get_clients_decision(), smbpp.get_current_prices())
-        result = minlp_opt.solve(smbpp, timeout, seed, verbose, **kwargs)
+        result = minlp_opt.solve(smbpp, timeout - result['time'], seed, verbose, **kwargs)
 
         result['name'] = self.__class__.__name__
         return result
