@@ -49,6 +49,25 @@ class GAOptimizer(BaseOptimizer):
         child2.solution[point:self.smbpp.n_clients] = parent1.solution[point:self.smbpp.n_clients]
         child2.fitness_value = None
         
+    
+    def _uniform_crossover(self, parent1, parent2, child1, child2):
+        """
+        Peforms the 1-point crossover.
+
+        ### Parameters:
+            :parent1, parent2: parents.
+            :child1, child2: Chromosome objects to stores the results.  
+
+        :return: None
+        """
+
+        for i in range(self.smbpp.n_clients):
+            if random.random() < 0.5:
+                child1.solution[i], child2.solution[i] = parent1.solution[i], parent2.solution[i]
+            else:
+                child1.solution[i], child2.solution[i] = parent2.solution[i], parent1.solution[i]
+        child1.fitness_value = None
+        child2.fitness_value = None
         
     def _mutation(self, cromo):
         """
@@ -100,8 +119,12 @@ class GAOptimizer(BaseOptimizer):
         for i in range(0, self.pop_size, 2):
             point = random.randint(1, self.pop_size-1)
             parent1, parent2 = self.parents[i], self.parents[i+1]
-            self._one_crossover(self.pop[parent1], self.pop[parent2], self.pop[i+self.pop_size], 
-                self.pop[i+1+self.pop_size], point)
+            if self.uniform_cross:
+                self._uniform_crossover(self.pop[parent1], self.pop[parent2], self.pop[i+self.pop_size], 
+                    self.pop[i+1+self.pop_size])
+            else:
+                self._one_crossover(self.pop[parent1], self.pop[parent2], self.pop[i+self.pop_size], 
+                    self.pop[i+1+self.pop_size], point)
             self._mutation(self.pop[i+self.pop_size])
             self._mutation(self.pop[i+1+self.pop_size])
         
