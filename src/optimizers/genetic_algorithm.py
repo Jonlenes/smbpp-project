@@ -109,7 +109,50 @@ class GAOptimizer(BaseOptimizer):
             
         # Selects the parents based on the probabilities
         self.parents = np.random.choice(self.pop_size, self.pop_size, p=self.probs)
+
+
+    def _stochastic_universal_sampling_selection(self):
+        """
+        Selects self.pop_size parents using the Stochastic Universal Sampling method.
+        The indexes of the selected parents are stored in self.parents.
         
+        :return: None
+        """
+        sum_fitness = 0
+        for i in range(self.pop_size):
+            self.probs[i] = self.pop[i].fitness_value
+            sum_fitness += self.probs[i]
+
+        # Computes the probability of each chromose based on his fitness
+        for i in range(self.pop_size):
+            self.probs[i] /= sum_fitness
+
+        # Selects the parents based on the probabilities
+        step = 1.0/self.pop_size
+        current_point = random.uniform(0, step)
+        sum_probs = self.probs[0]
+        i = 0
+        for parent in range(self.pop_size):
+            while sum_probs < current_point:
+                i+=1
+                sum_probs += self.probs[i]
+            self.parents[parent] = i
+            current_point += step
+            
+        self.parents = np.random.permutation(self.parents)
+
+    def _tournament_selection(self, tournament_size = 4):
+        """
+        Selects self.pop_size parents using the tournament method.
+        The indexes of the selected parents are stored in self.parents.
+        
+        :return: None
+        """
+        for parent in range(self.pop_size):
+            tournament = np.random.choice(self.pop_size, tournament_size, replace = False)
+            self.parents[parent] = max(tournament, key = lambda x: self.pop[x].fitness_value)
+        
+    
     def _offspring_generation(self):
         """
         Generates self.pop_size children using the crossover and the mutation.
@@ -170,9 +213,12 @@ class GAOptimizer(BaseOptimizer):
         while(gen < self.num_generations and time() - start_time < self.timeout):
             self._calculate_fitness(0, self.pop_size-1) #Calcula o fitness dos pais (quando necessario)
             
-
-            self._roulette_wheel_selection()
-            
+            if selection_method == 0:
+                self._roulette_wheel_selection()
+            elif selection_method == 1:
+                self._stochastic_universal_sampling_selection()
+            else:
+                self._tournament_selection()
             self._offspring_generation() # Crossover and mutation
             self._calculate_fitness(self.pop_size, 2*self.pop_size-1)
             # Sorts the chromosomes so that the 1st half of self.pop (the new generation)
