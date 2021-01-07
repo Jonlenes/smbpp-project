@@ -8,7 +8,8 @@ from src.optimizers import (MILPOptimizer,
                     GRASPOptimizer,
                     MINLPOptimizer,
                     GreedyHeuristicOptimizer,
-                    MINLPWarmStartOptimizer)
+                    MINLPWarmStartOptimizer,
+                    GAOptimizer)
 
 
 def main():
@@ -27,6 +28,16 @@ def main():
 
     """
     opts = [
+        {
+            'opt': GAOptimizer,
+            'kwargs': {
+                'num_generations': 50,
+                'pop_size': 50,
+                'mut_rate': 0.01,
+                'selection_method': 1,
+                'uniform_cross': True
+            }
+        },
         {
             'opt': MILPOptimizer,
             'kwargs': {}
