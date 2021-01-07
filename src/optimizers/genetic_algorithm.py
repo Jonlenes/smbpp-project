@@ -234,14 +234,14 @@ class GAOptimizer(BaseOptimizer):
             
             # Re-initialize 10 chromosomes if no improve was found in the last 10 generations
             if n_no_improvements == 10:
-                print("\n\tRestarting 10 chromosomes\n")
+                if verbose == 2: print("\n\tRestarting 10 chromosomes\n")
                 indexes = np.random.choice(np.arange(20, 50), 10, replace = False)
                 for i in indexes:
                     self.pop[i].initialize()
                 n_no_improvements = 0
             
             # Prints the best fitness
-            if(self.verbose == 1 and gen % 50 == 0 or self.verbose == 2):
+            if(self.verbose == 1 and gen % 10 == 0 or self.verbose == 2):
                 print("\n\tGeneration ", gen, " Best Fitness: ", self.pop[0].fitness_value)
                 if verbose == 2:
                     print("\tTop 10:")
